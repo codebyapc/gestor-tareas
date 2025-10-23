@@ -1,0 +1,30 @@
+# Ignorar archivos sensibles y temporales para TaskFlow
+
+# Configuración de base de datos (ajusta si es necesario)
+config.php
+
+# Archivos de sesión y logs
+*.log
+*.tmp
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de IDE
+.vscode/
+.idea/
+
+# Archivos de backup
+*.bak
+*.swp
+
+# Archivos de Docker (si usas)
+.env
+docker-compose.override.yml
+
+# No ignorar el código fuente
+!public/
+!app/
+!database.sql
+!README.md
