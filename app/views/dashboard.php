@@ -1,10 +1,20 @@
+<?php
+session_start();
+if (!isset($_SESSION['user_id'])) {
+    header('Location: http://localhost/gestor-tareas/app/views/login.php');
+    exit;
+}
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - TaskFlow</title>
-    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="<?php echo str_replace('/app/views', '', dirname($_SERVER['SCRIPT_NAME'])); ?>/public/css/styles.css">
 </head>
 <body>
     <div class="container">
@@ -12,7 +22,8 @@
             <h1>TaskFlow</h1>
             <div class="user-info">
                 <span>Bienvenido, <?php echo $_SESSION['user_name']; ?></span>
-                <a href="../controllers/AuthController.php?action=logout">Logout</a>
+                <button id="theme-toggle" class="theme-toggle" title="Cambiar tema">🌙</button>
+                <a href="http://localhost/gestor-tareas/public/index.php?action=logout">Logout</a>
             </div>
         </header>
         
@@ -55,6 +66,6 @@
         </div>
     </div>
     
-    <script src="../js/dashboard.js"></script>
+    <script src="<?php echo str_replace('/app/views', '', dirname($_SERVER['SCRIPT_NAME'])); ?>/public/js/dashboard.js"></script>
 </body>
 </html>

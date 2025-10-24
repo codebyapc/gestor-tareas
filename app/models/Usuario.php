@@ -2,7 +2,7 @@
 // Modelo Usuario para TaskFlow
 // Maneja operaciones CRUD para usuarios
 
-require_once '../../config.php';
+require_once __DIR__ . '/../../config.php';
 
 class Usuario {
     private $pdo;
@@ -21,9 +21,16 @@ class Usuario {
 
     // Obtener usuario por email (login)
     public function obtenerPorEmail($email) {
-        $stmt = $this->pdo->prepare("SELECT * FROM usuarios WHERE email = ?");
+        error_log("UsuarioModel: Buscando usuario por email: $email");
+        $query = "SELECT * FROM usuarios WHERE email = ?";
+        error_log("UsuarioModel: Query preparada: $query");
+        $stmt = $this->pdo->prepare($query);
         $stmt->execute([$email]);
-        return $stmt->fetch();
+        $rowCount = $stmt->rowCount();
+        error_log("UsuarioModel: Número de filas devueltas: $rowCount");
+        $result = $stmt->fetch();
+        error_log("UsuarioModel: Usuario encontrado: " . ($result ? json_encode($result) : 'null'));
+        return $result;
     }
 
     // Obtener usuario por ID

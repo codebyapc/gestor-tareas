@@ -160,3 +160,63 @@ function drawChart(data) {
     });
     document.getElementById('statistics').appendChild(legend);
 }
+// Función para alternar tema oscuro/claro
+function toggleTheme() {
+    const body = document.body;
+    const themeToggle = document.getElementById('theme-toggle');
+    
+    if (body.getAttribute('data-theme') === 'dark') {
+        body.removeAttribute('data-theme');
+        themeToggle.textContent = '🌙';
+        localStorage.setItem('theme', 'light');
+    } else {
+        body.setAttribute('data-theme', 'dark');
+        themeToggle.textContent = '☀️';
+        localStorage.setItem('theme', 'dark');
+    }
+}
+
+// Cargar tema guardado al cargar la página
+document.addEventListener('DOMContentLoaded', function() {
+    const savedTheme = localStorage.getItem('theme');
+    const themeToggle = document.getElementById('theme-toggle');
+    
+    if (savedTheme === 'dark') {
+        document.body.setAttribute('data-theme', 'dark');
+        themeToggle.textContent = '☀️';
+    }
+    
+    // Agregar evento al botón de toggle
+    if (themeToggle) {
+        themeToggle.addEventListener('click', toggleTheme);
+    }
+    
+    // Resto del código existente...
+    loadProjects();
+    loadStatistics();
+
+    // Modal para nuevo proyecto
+    const modal = document.getElementById('project-modal');
+    const btn = document.getElementById('new-project-btn');
+    const span = document.querySelector('.close');
+
+    btn.onclick = function() {
+        modal.style.display = 'block';
+    }
+
+    span.onclick = function() {
+        modal.style.display = 'none';
+    }
+
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = 'none';
+        }
+    }
+
+    // Formulario de proyecto
+    document.getElementById('project-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        createProject();
+    });
+});

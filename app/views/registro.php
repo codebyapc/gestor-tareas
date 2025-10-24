@@ -1,10 +1,16 @@
+<?php
+session_start();
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro - TaskFlow</title>
-    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="<?php echo str_replace('/app/views', '', dirname($_SERVER['SCRIPT_NAME'])); ?>/public/css/styles.css">
 </head>
 <body>
     <div class="container">
@@ -14,7 +20,12 @@
             <?php if (isset($_SESSION['error'])): ?>
                 <div class="alert error"><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></div>
             <?php endif; ?>
-            <form action="../controllers/AuthController.php?action=registro" method="POST">
+            <form action="http://localhost/gestor-tareas/public/index.php?action=registro" method="POST">
+                <input type="hidden" name="csrf_token" value="<?php
+                    require_once __DIR__ . '/../controllers/AuthController.php';
+                    $auth = new AuthController();
+                    echo $auth->getCsrfToken();
+                ?>">
                 <label for="nombre">Nombre:</label>
                 <input type="text" id="nombre" name="nombre" required>
                 
@@ -29,7 +40,7 @@
                 
                 <button type="submit">Registrarse</button>
             </form>
-            <p>¿Ya tienes cuenta? <a href="login.php">Inicia sesión aquí</a></p>
+            <p>¿Ya tienes cuenta? <a href="/app/views/login.php">Inicia sesión aquí</a></p>
         </div>
     </div>
 </body>

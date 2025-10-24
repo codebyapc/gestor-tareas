@@ -1,0 +1,39 @@
+# Configuración de seguridad y reescritura para TaskFlow
+
+# Prevenir listado de directorios
+Options -Indexes
+
+# Habilitar reescritura
+RewriteEngine On
+
+# Bloquear acceso a carpetas sensibles
+RewriteCond %{REQUEST_URI} ^/app/ [OR]
+RewriteCond %{REQUEST_URI} ^/tests/ [OR]
+RewriteCond %{REQUEST_URI} ^/database.sql [OR]
+RewriteCond %{REQUEST_URI} ^/\.env
+RewriteRule ^(.*)$ - [F,L]
+
+# Permitir acceso directo a vistas públicas (login, registro, dashboard)
+RewriteCond %{REQUEST_URI} ^/login/?$
+RewriteRule ^(.*)$ app/views/login.php [L,QSA]
+
+RewriteCond %{REQUEST_URI} ^/registro/?$
+RewriteRule ^(.*)$ app/views/registro.php [L,QSA]
+
+RewriteCond %{REQUEST_URI} ^/dashboard/?$
+RewriteRule ^(.*)$ app/views/dashboard.php [L,QSA]
+
+# Bloquear acceso directo a controladores (solo permitir POST)
+RewriteCond %{REQUEST_URI} ^/app/controllers/
+RewriteCond %{REQUEST_METHOD} !POST
+RewriteRule ^(.*)$ - [F,L]
+
+# Permitir acceso a archivos estáticos en public/
+RewriteCond %{REQUEST_URI} ^/public/
+RewriteRule ^(.*)$ public/$1 [L]
+
+# Redirigir todas las demás solicitudes a index.php, excepto controladores
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} !^/app/controllers/
+RewriteRule ^(.*)$ index.php [QSA,L]
