@@ -2,7 +2,16 @@
 // Modelo Proyecto para TaskFlow
 // Maneja operaciones CRUD para proyectos
 
-require_once '../../config.php';
+try {
+    require_once __DIR__ . '/../../config.php';
+} catch (Throwable $e) {
+    http_response_code(500);
+    echo json_encode([
+        'error' => 'Error al cargar configuración de base de datos',
+        'detalle' => $e->getMessage()
+    ]);
+    exit;
+}
 
 class Proyecto {
     private $pdo;

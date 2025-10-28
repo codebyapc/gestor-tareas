@@ -2,7 +2,8 @@
 // Controlador de Proyectos para TaskFlow
 // Maneja operaciones CRUD para proyectos
 
-require_once '../models/Proyecto.php';
+require_once dirname(__DIR__, 2) . '/config.php';
+require_once __DIR__ . '/../models/Proyecto.php';
 
 class ProyectoController {
     private $proyectoModel;

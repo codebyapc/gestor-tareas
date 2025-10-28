@@ -2,6 +2,9 @@
 // API Router para TaskFlow
 // Maneja solicitudes AJAX para CRUD
 
+// Agregar logging para depuración
+error_log("API accessed: " . $_SERVER['REQUEST_URI'] . " Method: " . $_SERVER['REQUEST_METHOD']);
+
 session_start();
 require_once '../config.php';
 
@@ -11,8 +14,10 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-$request = $_SERVER['REQUEST_URI'];
+$request = str_replace('/gestor-tareas', '', $_SERVER['REQUEST_URI']);
 $method = $_SERVER['REQUEST_METHOD'];
+
+error_log("Request: $request, Method: $method");
 
 switch ($request) {
     case '/api/proyectos':

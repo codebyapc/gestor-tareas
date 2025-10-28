@@ -6,34 +6,46 @@ Options -Indexes
 # Habilitar reescritura
 RewriteEngine On
 
+# LOG: Agregar logs para debugging
+# RewriteLog "logs/rewrite.log"
+# RewriteLogLevel 9
+
 # Bloquear acceso a carpetas sensibles
-RewriteCond %{REQUEST_URI} ^/app/ [OR]
-RewriteCond %{REQUEST_URI} ^/tests/ [OR]
-RewriteCond %{REQUEST_URI} ^/database.sql [OR]
-RewriteCond %{REQUEST_URI} ^/\.env
+RewriteCond %{REQUEST_URI} ^/gestor-tareas/app/controllers/ [OR]
+RewriteCond %{REQUEST_URI} ^/gestor-tareas/tests/ [OR]
+RewriteCond %{REQUEST_URI} ^/gestor-tareas/database.sql [OR]
+RewriteCond %{REQUEST_URI} ^/gestor-tareas/\.env
 RewriteRule ^(.*)$ - [F,L]
 
 # Permitir acceso directo a vistas públicas (login, registro, dashboard)
-RewriteCond %{REQUEST_URI} ^/login/?$
-RewriteRule ^(.*)$ app/views/login.php [L,QSA]
+RewriteCond %{REQUEST_URI} ^/gestor-tareas/login/?$
+RewriteRule ^login/?$ app/views/login.php [L,QSA]
 
-RewriteCond %{REQUEST_URI} ^/registro/?$
-RewriteRule ^(.*)$ app/views/registro.php [L,QSA]
+RewriteCond %{REQUEST_URI} ^/gestor-tareas/registro/?$
+RewriteRule ^registro/?$ app/views/registro.php [L,QSA]
 
-RewriteCond %{REQUEST_URI} ^/dashboard/?$
-RewriteRule ^(.*)$ app/views/dashboard.php [L,QSA]
+RewriteCond %{REQUEST_URI} ^/gestor-tareas/dashboard/?$
+RewriteRule ^dashboard/?$ app/views/dashboard.php [L,QSA]
 
 # Bloquear acceso directo a controladores (solo permitir POST)
-RewriteCond %{REQUEST_URI} ^/app/controllers/
+RewriteCond %{REQUEST_URI} ^/gestor-tareas/app/controllers/
 RewriteCond %{REQUEST_METHOD} !POST
 RewriteRule ^(.*)$ - [F,L]
 
 # Permitir acceso a archivos estáticos en public/
-RewriteCond %{REQUEST_URI} ^/public/
-RewriteRule ^(.*)$ public/$1 [L]
+RewriteCond %{REQUEST_URI} ^/gestor-tareas/public/
+RewriteRule ^public/(.*)$ public/$1 [L]
 
-# Redirigir todas las demás solicitudes a index.php, excepto controladores
+# Redirigir solicitudes API a api/index.php
+RewriteCond %{REQUEST_URI} ^/gestor-tareas/api/
+RewriteRule ^api/(.*)$ api/index.php [QSA,L]
+
+# Redirigir admin a controlador
+RewriteCond %{REQUEST_URI} ^/gestor-tareas/admin/?$
+RewriteRule ^admin/?$ public/index.php?action=admin [QSA,L]
+
+# Redirigir todas las demás solicitudes a index.php (que redirige a public/index.php), excepto controladores
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{REQUEST_URI} !^/app/controllers/
+RewriteCond %{REQUEST_URI} !^/gestor-tareas/app/controllers/
 RewriteRule ^(.*)$ index.php [QSA,L]

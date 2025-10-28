@@ -2,7 +2,8 @@
 // Controlador de Tareas para TaskFlow
 // Maneja operaciones CRUD para tareas
 
-require_once '../models/Tarea.php';
+require_once dirname(__DIR__, 2) . '/config.php';
+require_once __DIR__ . '/../models/Tarea.php';
 
 class TareaController {
     private $tareaModel;
@@ -18,7 +19,9 @@ class TareaController {
             echo json_encode(['error' => 'Proyecto ID es obligatorio']);
             return;
         }
+        error_log("Obteniendo tareas para proyecto_id: $proyecto_id");
         $tareas = $this->tareaModel->obtenerPorProyecto($proyecto_id);
+        error_log("Tareas obtenidas: " . json_encode($tareas));
         echo json_encode($tareas);
     }
 
@@ -28,16 +31,24 @@ class TareaController {
             $titulo = filter_input(INPUT_POST, 'titulo', FILTER_SANITIZE_STRING);
             $descripcion = filter_input(INPUT_POST, 'descripcion', FILTER_SANITIZE_STRING);
             $estado = filter_input(INPUT_POST, 'estado', FILTER_SANITIZE_STRING);
-            $usuario_id = filter_input(INPUT_POST, 'usuario_id', FILTER_VALIDATE_INT);
             $proyecto_id = filter_input(INPUT_POST, 'proyecto_id', FILTER_VALIDATE_INT);
             $fecha_vencimiento = filter_input(INPUT_POST, 'fecha_vencimiento', FILTER_SANITIZE_STRING);
 
+            error_log("Creando tarea: titulo=$titulo, descripcion=$descripcion, estado=$estado, proyecto_id=$proyecto_id, fecha_vencimiento=$fecha_vencimiento");
+            error_log("POST data: " . json_encode($_POST));
+
             if (empty($titulo) || !$proyecto_id) {
+                error_log("Error: Título o proyecto_id vacío");
                 echo json_encode(['error' => 'Título y proyecto son obligatorios']);
                 return;
             }
 
-            if ($this->tareaModel->crear($titulo, $descripcion, $estado, $usuario_id, $proyecto_id, $fecha_vencimiento)) {
+            if (!isset($_SESSION['user_id'])) {
+                echo json_encode(['error' => 'No autenticado']);
+                return;
+            }
+
+            if ($this->tareaModel->crear($titulo, $descripcion, $estado, $_SESSION['user_id'], $proyecto_id, $fecha_vencimiento)) {
                 echo json_encode(['success' => 'Tarea creada']);
             } else {
                 echo json_encode(['error' => 'Error al crear tarea']);
@@ -55,10 +66,12 @@ class TareaController {
             $usuario_id = filter_input(INPUT_POST, 'usuario_id', FILTER_VALIDATE_INT);
             $fecha_vencimiento = filter_input(INPUT_POST, 'fecha_vencimiento', FILTER_SANITIZE_STRING);
 
-            if (!$id || empty($titulo)) {
-                echo json_encode(['error' => 'ID y título son obligatorios']);
+            if (!$id) {
+                echo json_encode(['error' => 'ID es obligatorio']);
                 return;
             }
+
+            error_log("Actualizando tarea: id=$id, titulo=$titulo, estado=$estado");
 
             if ($this->tareaModel->actualizar($id, $titulo, $descripcion, $estado, $usuario_id, $fecha_vencimiento)) {
                 echo json_encode(['success' => 'Tarea actualizada']);
@@ -89,6 +102,17 @@ class TareaController {
     // Obtener estadísticas
     public function obtenerEstadisticas() {
         $estadisticas = $this->tareaModel->obtenerEstadisticas();
+        echo json_encode($estadisticas);
+    }
+
+    // Obtener estadísticas por usuario
+    public function obtenerEstadisticasPorUsuario() {
+        if (!isset($_SESSION['user_id'])) {
+            echo json_encode(['error' => 'No autenticado']);
+            return;
+        }
+
+        $estadisticas = $this->tareaModel->obtenerEstadisticasPorUsuario($_SESSION['user_id']);
         echo json_encode($estadisticas);
     }
 }

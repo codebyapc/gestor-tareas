@@ -1,0 +1,7 @@
+RewriteEngine On
+RewriteBase /gestor-tareas/public/
+
+# Permitir acceso directo a archivos (css, js, imágenes)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [QSA,L]

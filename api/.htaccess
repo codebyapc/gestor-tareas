@@ -1,0 +1,7 @@
+RewriteEngine On
+RewriteBase /gestor-tareas/api/
+
+# Redirige todas las peticiones a index.php excepto archivos o carpetas existentes
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [QSA,L]

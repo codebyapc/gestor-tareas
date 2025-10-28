@@ -2,7 +2,16 @@
 // Modelo Tarea para TaskFlow
 // Maneja operaciones CRUD para tareas
 
-require_once '../../config.php';
+try {
+    require_once __DIR__ . '/../../config.php';
+} catch (Throwable $e) {
+    http_response_code(500);
+    echo json_encode([
+        'error' => 'Error al cargar configuración de base de datos',
+        'detalle' => $e->getMessage()
+    ]);
+    exit;
+}
 
 class Tarea {
     private $pdo;
@@ -34,7 +43,7 @@ class Tarea {
 
     // Actualizar tarea
     public function actualizar($id, $titulo, $descripcion, $estado, $usuario_id, $fecha_vencimiento) {
-        $stmt = $this->pdo->prepare("UPDATE tareas SET titulo = ?, descripcion = ?, estado = ?, usuario_id = ?, fecha_vencimiento = ? WHERE id = ?");
+        $stmt = $this->pdo->prepare("UPDATE tareas SET titulo = COALESCE(?, titulo), descripcion = COALESCE(?, descripcion), estado = COALESCE(?, estado), usuario_id = COALESCE(?, usuario_id), fecha_vencimiento = COALESCE(?, fecha_vencimiento) WHERE id = ?");
         return $stmt->execute([$titulo, $descripcion, $estado, $usuario_id, $fecha_vencimiento, $id]);
     }
 
@@ -48,6 +57,13 @@ class Tarea {
     public function obtenerEstadisticas() {
         $stmt = $this->pdo->prepare("SELECT estado, COUNT(*) as count FROM tareas GROUP BY estado");
         $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
+    // Obtener estadísticas de tareas por estado para un usuario específico
+    public function obtenerEstadisticasPorUsuario($usuario_id) {
+        $stmt = $this->pdo->prepare("SELECT estado, COUNT(*) as count FROM tareas WHERE usuario_id = ? GROUP BY estado");
+        $stmt->execute([$usuario_id]);
         return $stmt->fetchAll();
     }
 }

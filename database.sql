@@ -10,6 +10,7 @@ CREATE TABLE usuarios (
     nombre VARCHAR(100) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
+    activo TINYINT(1) DEFAULT 0,
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -38,5 +39,5 @@ CREATE TABLE tareas (
 );
 
 -- Insertar datos de ejemplo (opcional)
-INSERT INTO usuarios (nombre, email, password) VALUES
-('Admin', 'admin@taskflow.com', '$2y$10$examplehashedpassword');
+INSERT INTO usuarios (nombre, email, password, activo) VALUES
+('Admin', 'admin@taskflow.com', '$2a$12$2w.9DFTbDcaYHd79nYWiFeAa3NHVWYTaGB7.ZUSEqIgzs2b0nnzhi', 1);

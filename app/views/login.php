@@ -1,6 +1,6 @@
 <?php
 session_start();
-error_log("Login view: Acceso a login.php - REQUEST_URI: " . $_SERVER['REQUEST_URI'] . ", SCRIPT_NAME: " . $_SERVER['SCRIPT_NAME']);
+require_once dirname(__DIR__, 2) . '/config.php';
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -11,22 +11,22 @@ error_log("Login view: Acceso a login.php - REQUEST_URI: " . $_SERVER['REQUEST_U
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="<?php echo str_replace('/app/views', '', dirname($_SERVER['SCRIPT_NAME'])); ?>/public/css/styles.css">
+    <link rel="stylesheet" href="<?php echo APP_URL; ?>/public/css/styles.css">
 </head>
 <body>
     <div class="container">
         <h1>TaskFlow</h1>
         <div class="form-container">
             <h2>Iniciar Sesión</h2>
-            <?php
-            error_log("Login view: Acceso a login.php, error: " . (isset($_SESSION['error']) ? $_SESSION['error'] : 'none'));
-            if (isset($_SESSION['error'])): ?>
-                            <div class="alert error"><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></div>
-                        <?php endif; ?>
+            <?php if (isset($_SESSION['error'])): ?>
+                <div class="alert error"><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></div>
+            <?php endif; ?>
             <?php if (isset($_SESSION['success'])): ?>
                 <div class="alert success"><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></div>
             <?php endif; ?>
-            <form action="http://localhost/gestor-tareas/public/index.php?action=login" method="POST">
+            <form action="<?php echo APP_URL; ?>/public/index.php?action=login" method="POST">
+            <!-- DEBUG: URL actual: <?php echo $_SERVER['REQUEST_URI']; ?> -->
+            <!-- DEBUG: APP_URL: <?php echo APP_URL; ?> -->
                 <input type="hidden" name="csrf_token" value="<?php
                     require_once __DIR__ . '/../controllers/AuthController.php';
                     $auth = new AuthController();
@@ -38,9 +38,9 @@ error_log("Login view: Acceso a login.php - REQUEST_URI: " . $_SERVER['REQUEST_U
                 <label for="password">Contraseña:</label>
                 <input type="password" id="password" name="password" required>
                 
-                <button type="submit">Iniciar Sesión</button>
+                <button type="submit" class="btn btn-primary">🔐 Iniciar Sesión</button>
             </form>
-            <p>¿No tienes cuenta? <a href="/app/views/registro.php">Regístrate aquí</a></p>
+            <p>¿No tienes cuenta? <a href="<?php echo APP_URL; ?>/registro">Regístrate aquí</a></p>
         </div>
     </div>
 </body>

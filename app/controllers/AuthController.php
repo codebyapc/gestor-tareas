@@ -2,7 +2,8 @@
 // Controlador de Autenticación para TaskFlow
 // Maneja registro, login y logout
 
-require_once __DIR__ . '/../models/Usuario.php';
+require_once dirname(__DIR__, 2) . '/config.php';
+require_once dirname(__DIR__) . '/models/Usuario.php';
 
 class AuthController {
     private $usuarioModel;
@@ -14,15 +15,15 @@ class AuthController {
     // Procesar registro
     public function registro() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            error_log("AuthController registro: No es POST, redirigiendo a http://localhost/gestor-tareas/app/views/registro.php");
-            header('Location: http://localhost/gestor-tareas/app/views/registro.php');
+            error_log("AuthController registro: No es POST, redirigiendo a " . APP_URL . "/registro");
+            header('Location: ' . APP_URL . '/registro');
             exit;
         }
         // Verificar CSRF token
         if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
             error_log("AuthController registro: CSRF token inválido");
             $_SESSION['error'] = 'Error de seguridad. Intenta de nuevo.';
-            header('Location: http://localhost/gestor-tareas/app/views/registro.php');
+            header('Location: ' . APP_URL . '/registro');
             exit;
         }
 
@@ -34,49 +35,49 @@ class AuthController {
         // Validaciones
         if (empty($nombre) || empty($email) || empty($password)) {
             $_SESSION['error'] = 'Todos los campos son obligatorios.';
-            header('Location: http://localhost/gestor-tareas/app/views/registro.php');
+            header('Location: ' . APP_URL . '/registro');
             exit;
         }
 
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $_SESSION['error'] = 'Formato de email inválido.';
-            header('Location: http://localhost/gestor-tareas/app/views/registro.php');
+            header('Location: ' . APP_URL . '/registro');
             exit;
         }
 
         if (strlen($nombre) < 2 || strlen($nombre) > 50) {
             $_SESSION['error'] = 'El nombre debe tener entre 2 y 50 caracteres.';
-            header('Location: http://localhost/gestor-tareas/app/views/registro.php');
+            header('Location: ' . APP_URL . '/registro');
             exit;
         }
 
         if ($password !== $confirmPassword) {
             $_SESSION['error'] = 'Las contraseñas no coinciden.';
-            header('Location: http://localhost/gestor-tareas/app/views/registro.php');
+            header('Location: ' . APP_URL . '/registro');
             exit;
         }
 
         if (strlen($password) < 8 || !preg_match('/[A-Z]/', $password) || !preg_match('/[a-z]/', $password) || !preg_match('/[0-9]/', $password)) {
             $_SESSION['error'] = 'La contraseña debe tener al menos 8 caracteres, incluyendo mayúsculas, minúsculas y números.';
-            header('Location: http://localhost/gestor-tareas/app/views/registro.php');
+            header('Location: ' . APP_URL . '/registro');
             exit;
         }
 
         // Verificar si el email ya existe
         if ($this->usuarioModel->obtenerPorEmail($email)) {
             $_SESSION['error'] = 'El email ya está registrado.';
-            header('Location: http://localhost/gestor-tareas/app/views/registro.php');
+            header('Location: ' . APP_URL . '/registro');
             exit;
         }
 
         // Crear usuario
         if ($this->usuarioModel->crear($nombre, $email, $password)) {
-            $_SESSION['success'] = 'Registro exitoso. Inicia sesión.';
-            header('Location: http://localhost/gestor-tareas/app/views/login.php');
+            $_SESSION['success'] = 'Registro exitoso. Tu cuenta está pendiente de aprobación por un administrador.';
+            header('Location: ' . APP_URL . '/login');
             exit;
         } else {
             $_SESSION['error'] = 'Error al registrar. Intenta de nuevo.';
-            header('Location: http://localhost/gestor-tareas/app/views/registro.php');
+            header('Location: ' . APP_URL . '/registro');
             exit;
         }
     }
@@ -85,16 +86,16 @@ class AuthController {
     public function login() {
         error_log("AuthController: Método login iniciado");
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            error_log("AuthController login: No es POST, redirigiendo a http://localhost/gestor-tareas/app/views/login.php");
-            header('Location: http://localhost/gestor-tareas/app/views/login.php');
+            error_log("AuthController login: No es POST, redirigiendo a " . APP_URL . "/login");
+            header('Location: ' . APP_URL . '/login');
             exit;
         }
         // Verificar CSRF token
         error_log("AuthController: Verificando CSRF token");
         if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
-            error_log("AuthController login: CSRF token inválido, redirigiendo a http://localhost/gestor-tareas/app/views/login.php");
+            error_log("AuthController login: CSRF token inválido, redirigiendo a " . APP_URL . "/login");
             $_SESSION['error'] = 'Error de seguridad. Intenta de nuevo.';
-            header('Location: http://localhost/gestor-tareas/app/views/login.php');
+            header('Location: ' . APP_URL . '/login');
             exit;
         }
 
@@ -106,15 +107,15 @@ class AuthController {
         if (empty($email) || empty($password)) {
             error_log("AuthController: Campos vacíos");
             $_SESSION['error'] = 'Email y contraseña son obligatorios.';
-            error_log("AuthController logout: Redirigiendo a http://localhost/gestor-tareas/app/views/login.php");
-            header('Location: http://localhost/gestor-tareas/app/views/login.php');
+            error_log("AuthController login: Redirigiendo a " . APP_URL . "/login");
+            header('Location: ' . APP_URL . '/login');
             exit;
         }
 
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             error_log("AuthController: Email inválido: $email");
             $_SESSION['error'] = 'Formato de email inválido.';
-            header('Location: http://localhost/gestor-tareas/app/views/login.php');
+            header('Location: ' . APP_URL . '/login');
             exit;
         }
 
@@ -124,7 +125,7 @@ class AuthController {
         if ($attempts >= 5) {
             error_log("AuthController: Demasiados intentos: $attempts");
             $_SESSION['error'] = 'Demasiados intentos fallidos. Intenta más tarde.';
-            header('Location: http://localhost/gestor-tareas/app/views/login.php');
+            header('Location: ' . APP_URL . '/login');
             exit;
         }
 
@@ -134,27 +135,35 @@ class AuthController {
         if ($usuario) {
             error_log("AuthController: Usuario encontrado: " . $usuario['id']);
             if ($this->usuarioModel->verificarPassword($password, $usuario['password'])) {
-                error_log("AuthController: Contraseña verificada, login exitoso");
-                // Login exitoso: limpiar intentos
-                $this->clearLoginAttempts($email);
-                $_SESSION['user_id'] = $usuario['id'];
-                $_SESSION['user_name'] = $usuario['nombre'];
-                // Regenerar ID de sesión por seguridad
-                session_regenerate_id(true);
-                error_log("AuthController login: Login exitoso, redirigiendo a http://localhost/gestor-tareas/app/views/dashboard.php");
-                header('Location: http://localhost/gestor-tareas/app/views/dashboard.php');
-                exit;
+                // Verificar si la cuenta está activa
+                if ($usuario['activo'] == 1) {
+                    error_log("AuthController: Contraseña verificada y cuenta activa, login exitoso");
+                    // Login exitoso: limpiar intentos
+                    $this->clearLoginAttempts($email);
+                    $_SESSION['user_id'] = $usuario['id'];
+                    $_SESSION['user_name'] = $usuario['nombre'];
+                    // Regenerar ID de sesión por seguridad
+                    session_regenerate_id(true);
+                    error_log("AuthController login: Login exitoso, redirigiendo a " . APP_URL . "dashboard");
+                    header('Location: ' . APP_URL . '/dashboard');
+                    exit;
+                } else {
+                    error_log("AuthController: Cuenta no activa para usuario " . $usuario['id']);
+                    $_SESSION['error'] = 'Tu cuenta está pendiente de aprobación por un administrador.';
+                    header('Location: ' . APP_URL . '/login');
+                    exit;
+                }
             } else {
-                error_log("AuthController: Contraseña incorrecta");
+                error_log("AuthController: Contraseña incorrecta para usuario " . $usuario['id'] . ", hash almacenado: " . substr($usuario['password'], 0, 20) . "...");
             }
         } else {
             error_log("AuthController: Usuario no encontrado");
         }
         // Login fallido: registrar intento
         $this->recordLoginAttempt($email);
-        error_log("AuthController login: Credenciales incorrectas, redirigiendo a http://localhost/gestor-tareas/app/views/login.php");
+        error_log("AuthController login: Credenciales incorrectas, redirigiendo a " . APP_URL . "/login");
         $_SESSION['error'] = 'Credenciales incorrectas.';
-        header('Location: http://localhost/gestor-tareas/app/views/login.php');
+        header('Location: ' . APP_URL . '/login');
         exit;
     }
 
@@ -170,7 +179,7 @@ class AuthController {
             );
         }
         session_destroy();
-        header('Location: http://localhost/gestor-tareas/app/views/login.php');
+        header('Location: ' . APP_URL . '/login');
         exit;
     }
 
@@ -189,7 +198,7 @@ class AuthController {
 
     // Rate limiting para login
     private function checkLoginAttempts($email) {
-        $file = '../logs/login_attempts_' . md5($email) . '.txt';
+        $file = base_path('logs/login_attempts_' . md5($email) . '.txt');
         if (file_exists($file)) {
             $data = json_decode(file_get_contents($file), true);
             if (time() - $data['last_attempt'] > 3600) { // Reset after 1 hour
@@ -202,7 +211,7 @@ class AuthController {
     }
 
     private function recordLoginAttempt($email) {
-        $file = '../logs/login_attempts_' . md5($email) . '.txt';
+        $file = base_path('logs/login_attempts_' . md5($email) . '.txt');
         $attempts = $this->checkLoginAttempts($email) + 1;
         $data = [
             'attempts' => $attempts,
@@ -212,7 +221,7 @@ class AuthController {
     }
 
     private function clearLoginAttempts($email) {
-        $file = '../logs/login_attempts_' . md5($email) . '.txt';
+        $file = base_path('logs/login_attempts_' . md5($email) . '.txt');
         if (file_exists($file)) {
             unlink($file);
         }

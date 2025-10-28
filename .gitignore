@@ -21,6 +21,9 @@ Thumbs.db
 
 # Archivos de Docker (si usas)
 .env
+.env.local
+.env.production
+.htaccess.cache
 docker-compose.override.yml
 
 # No ignorar el código fuente
